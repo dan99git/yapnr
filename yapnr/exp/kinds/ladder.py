@@ -22,7 +22,8 @@ from yapnr.exp.kinds import base
 RUNNER = "src/hardware/pnr/regression/run.py"
 # Every hard-rung stackup variant (hardware/pnr/regression/hard_rungs.py with_stackup, e.g.
 # "...-6L-SGSGPS") names its layer codes in upper case, so a campaign cannot select most hard
-# rungs without it.
+# rungs without it (widened from lower-case-only for the stackup/variant suffixes, e.g.
+# "07-chaser-20-4L-SGPS", "...-6L-SGSGPS-pairs").
 CASE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]{0,80}$")
 FAB_PROFILES = ("legacy", "jlc-pofv")
 
@@ -71,6 +72,8 @@ OPTIONS = {
     "legalize_reorient_wire": bool,
     "legalize_channel_clearance_fab": bool,
     "line_satellites": bool,
+    "power_first": bool,
+    "route_pairs_diff_pairs": bool,
 }
 FLAGS = {
     "packed_maze": "--packed-maze",
@@ -90,6 +93,9 @@ FLAGS = {
     "pool_source_clamp": "--pool-source-clamp",
     "legalize_reorient": "--legalize-reorient",
     "line_satellites": "--line-satellites",
+    # ladder-v2 ab-pairs-pool A/B.
+    "power_first": "--power-first",
+    "route_pairs_diff_pairs": "--route-pairs-diff-pairs",
 }
 # Weighted legalizer switches: option -> runner flag taking the weight.
 WEIGHTS = {"gp_channels": "--gp-channels", "legalize_hpwl": "--legalize-hpwl"}
