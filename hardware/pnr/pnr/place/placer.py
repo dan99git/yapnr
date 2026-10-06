@@ -58,6 +58,9 @@ class PlacementReport:
     # Hard region / align breaches (pnr.place.regions); always empty without them.
     region_outside: List[str] = field(default_factory=list)
     align_off: List[str] = field(default_factory=list)
+    # The legalizer's motion from the global poses (pnr.place.motion.summary plus the
+    # PNR_LEGALIZE_KEEP triage counts); None where no legalization record was kept.
+    legal_motion: Optional[dict] = None
 
     @property
     def legal(self) -> bool:
@@ -294,6 +297,26 @@ def place(
         pad_edge=pad_edge,
         margins=tight.margins if tight else None,
     )
+    # PNR_COMPACT GP: reserve (part of) the escape-channel room the legalizer's
+    # push otherwise opens afterwards, so block-level legalization moves little
+    # too (pnr.place.compact.gp_channel_inflation) — a rough, pre-placement
+    # estimate from the incoming rotations, combined with the route-feedback
+    # ``inflation`` floor (independent spreading reasons, so take the larger).
+    gp_inflation = inflation
+    if compact.enabled("GP"):
+        from pnr.constraints import compile_routing_rules as _compile_routing_rules
+
+        from .channels import ChannelModel as _EarlyChannelModel
+
+        early_rules = channel_rules or _compile_routing_rules(
+            constraints, [n.name for n in graph.nets]
+        )
+        early_channels = _EarlyChannelModel(graph, early_rules, **_channel_kwargs(early_rules))
+        chan_inflation = compact.gp_channel_inflation(graph, early_channels)
+        if chan_inflation:
+            gp_inflation = dict(inflation or {})
+            for ref, infl in chan_inflation.items():
+                gp_inflation[ref] = max(infl, gp_inflation.get(ref, 1.0))
     placement = global_place(
         graph,
         constraints,
@@ -302,7 +325,7 @@ def place(
         seed=seed,
         iters=iters,
         orient=orient,
-        inflation=inflation,
+        inflation=gp_inflation,
         spread=spread,
         initial_positions=initial_positions,
         initial_rotations=initial_rotations,
@@ -372,6 +395,7 @@ def place(
         # PNR_LEGALIZE_HPWL: the wirelength term and the four-turn search (not for matched parts).
         **_wire_kwargs(cont, constraints),
     )
+    legal_record = getattr(placed, "legal_motion", None)
     if related:
         # Hard aligns onto one exact line where that is legal (pnr.place.regions).
         from .regions import snap_aligns
@@ -424,6 +448,8 @@ def place(
             channel_model=channels,
             channel_guard=reorienting != "wire",
             **({} if not (tight and tight.margins) else dict(margins=tight.margins)),
+            # PNR_LEGALIZE_KEEP: only the parts the legalizer moved turn (None: every part).
+            refs=legal_moved(legal_record),
         )
     if sided:
         from .detail_moves import improve
@@ -441,7 +467,22 @@ def place(
             **({} if not (tight and tight.margins) else dict(margins=tight.margins)),
         )
         check_held(placed, side_plan)
-    return _finish(placed, graph, constraints, width, height, baseline, pad_edge)
+    return _finish(
+        placed, graph, constraints, width, height, baseline, pad_edge, motion=legal_record
+    )
+
+
+def legal_moved(record):
+    """The parts a PNR_LEGALIZE_KEEP legalization moved (``legal_motion`` of the legalizer's
+    graph: displaced beyond a grid snap or turned); None without the record or with the switch
+    off (every part)."""
+    if not record or not record.get("keep"):
+        return None
+    from .motion import SNAP_MM
+
+    return frozenset(
+        ref for ref, (dist, turn) in record["parts"].items() if dist > SNAP_MM or turn > 1e-6
+    )
 
 
 def _channel_kwargs(rules) -> dict:
@@ -539,7 +580,7 @@ def _place_line_groups(
     positions, rotations = line_group.map_starts(plan, initial_positions, initial_rotations)
     # Tracing only: snapshots and the legalization order name the members, not LG00.
     with _trace.pose_expansion(plan.trace_rows):
-        placed, _ = place(
+        placed, macro_report = place(
             mgraph,
             mcon,
             seed=seed,
@@ -558,10 +599,19 @@ def _place_line_groups(
                 else {r: v for r, v in initial_sides.items() if r not in plan.member_of}
             ),
         )
-    return _finish(plan.expand(placed, flat), graph, constraints, width, height, baseline, pad_edge)
+    return _finish(
+        plan.expand(placed, flat),
+        graph,
+        constraints,
+        width,
+        height,
+        baseline,
+        pad_edge,
+        motion=macro_report.legal_motion,
+    )
 
 
-def _finish(placed, graph, constraints, width, height, baseline, pad_edge=None):
+def _finish(placed, graph, constraints, width, height, baseline, pad_edge=None, motion=None):
     # Stamp the *placement region* as the placed board's outline, so downstream
     # steps (writeback framing, route SVG) use the constraint-resolved region
     # rather than the incoming atopile-framed one.
@@ -591,4 +641,8 @@ def _finish(placed, graph, constraints, width, height, baseline, pad_edge=None):
         align_off=v.get("align_off", []),
         rotated=sum(1 for c in placed.components if int(round(c.rot)) % 360 != 0),
     )
+    if motion is not None:
+        from .motion import summary
+
+        report.legal_motion = summary(motion)
     return placed, report
