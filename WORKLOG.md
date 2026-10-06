@@ -1,5 +1,14 @@
 # Worklog
 
+## Fork status: 2026-10-06
+
+- `dan99git/yapnr`: DOC-001 prepares agent rules, job/diary/TODO protocol and the scoped
+  improvement brief. See [jobs/TODO.md](jobs/TODO.md).
+- Upstream branch inventory covers 16 non-main heads; dependencies and stale PR claims
+  require review before any import. No engine fixes, cherry-picks or overnight runner started.
+- Full build/CI and representative-board work remain queued. The entries below are
+  preserved upstream context, not claims of experiments performed by this fork.
+
 A short, live status board: rewritten at the end of each session, not appended to. History lives in
 git and in the pull requests.
 
