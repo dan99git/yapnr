@@ -20,7 +20,9 @@ from xml.etree import ElementTree as ET
 from yapnr.exp.kinds import base
 
 RUNNER = "src/hardware/pnr/regression/run.py"
-CASE_RE = re.compile(r"^[a-z0-9][a-z0-9.-]{0,80}$")
+# Widened for the hard rungs' stackup/variant suffixes, which carry layer letters and
+# codes in upper case (e.g. "07-chaser-20-4L-SGPS", "...-6L-SGSGPS-pairs").
+CASE_RE = re.compile(r"^[a-z0-9][A-Za-z0-9.-]{0,80}$")
 FAB_PROFILES = ("legacy", "jlc-pofv")
 
 # Seconds per case on the development Mac (Apple M4 performance core) with the initial pool of
