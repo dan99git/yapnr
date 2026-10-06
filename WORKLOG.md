@@ -2,8 +2,10 @@
 
 ## Fork status: 2026-10-06
 
-- `dan99git/yapnr`: DOC-001 prepares agent rules, job/diary/TODO protocol and the scoped
-  improvement brief. See [jobs/TODO.md](jobs/TODO.md).
+- `dan99git/yapnr`: DOC-001 published agent rules, records and improvement brief in
+  [draft PR 1](https://github.com/dan99git/yapnr/pull/1). See [jobs/TODO.md](jobs/TODO.md).
+- Integration blocked: no registered fork CI workflows/runs/checks; generated-site job links
+  need an owner scope decision. Independent local documentation reviews and checks passed.
 - Upstream branch inventory covers 16 non-main heads; dependencies and stale PR claims
   require review before any import. No engine fixes, cherry-picks or overnight runner started.
 - Full build/CI and representative-board work remain queued. The entries below are

@@ -1,13 +1,13 @@
 # DOC-001: fork operating protocol and improvement brief
 
-- Status: final-review
+- Status: blocked
 - Priority: P0
 - Owner / coordinator: fork owner / Codex coordinator
 - Implementer: Codex coordinator; brief draft contributed by a separate Codex worker
 - Plan reviewer: independent Codex reviewer `audit_verifier`
 - Final reviewer: fresh independent Codex reviewer `protocol_final_review`
 - Opened / last updated (UTC): 2026-10-06
-- Issue / PR: none yet; DOC-001 is the local job identifier
+- Issue / PR: [draft PR 1](https://github.com/dan99git/yapnr/pull/1); local job DOC-001
 - Baseline commit: `d030a752ccc548dd438f05c29d313a88a9c18ced`
 - Intended branch: `docs/fork-agent-protocol`
 - Dependencies: source review and upstream branch inventory at the pinned base
@@ -73,8 +73,8 @@ Record actual commands/results below as they occur; never pre-fill passes.
 
 ## Handoff
 
-No engine implementation or overnight supervisor is running. Next: independent review
-of the applied candidate, draft publication and required CI before integration acceptance.
+No engine implementation or overnight supervisor is running. Draft PR 1 is published.
+Next: resolve missing fork CI and the generated-site scope decision before integration.
 Read the latest daily diary and `jobs/TODO.md` before resuming. Keep this record open
 until its required acceptance/CI gates are resolved.
 
@@ -101,3 +101,20 @@ upstream prose was changed. Repeated available checks passed after that correcti
 in this environment. Native KiCad and engine/performance tests are outside this documentation
 change. Full required CI remains pending; this job is not accepted for merge. Next: fresh exact
 candidate review, then owner-authorized draft publication with these limits.
+
+## Publication checkpoint
+
+Published reviewed commit `5a9b2b7146168874bb58991f133efc6e5d7beafe` as draft PR 1 in
+`dan99git/yapnr`. GitHub confirms the PR is open and draft; fork main remains at the baseline.
+The final review is [01-final](reviews/01-final.md). All eleven published documentation files
+passed local format/lint/privacy/whitespace/scope checks; 35 file destinations resolved.
+Commit identities and message/patch privacy scans also exited 0.
+
+Integration is blocked: the fork reports Actions enabled but zero registered workflows, no
+branch runs and no PR checks. No CI pass is claimed. Before merge, resolve the missing CI and
+the final review's generated-site decision. The existing builder omits `jobs/`; either the owner
+accepts repository/GitHub-only operating records or separately authorizes reviewed site support.
+No CI configuration, workflow enablement, code fixes or supervisor was changed or started.
+
+Resume: establish why fork CI has no registered workflows, propose any required change for review,
+then run required checks. Keep this PR draft until the outstanding integration gates are resolved.

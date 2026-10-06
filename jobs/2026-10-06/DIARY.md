@@ -25,3 +25,13 @@
   unavailable locally. No engine fixes, cherry-picks or background supervisor started.
 - verified: Ten-file scope, 34 local file links, formatting, Markdown lint, privacy and whitespace
   checks passed before this execution-record update; repeat checks include the final records.
+
+## DOC-001: draft publication and CI blocker
+
+- did: Published reviewed commit `5a9b2b7` in [draft PR 1](https://github.com/dan99git/yapnr/pull/1).
+- decision + why: Keep integration blocked because GitHub reports no workflows, runs or PR checks.
+- dead end: Actions permission reports enabled, but no workflows are registered; cause unknown.
+- assumption: None about CI success or background activity.
+- left: Diagnose missing CI and resolve the generated-site scope decision before merge.
+- verified: Exact remote head matches reviewed commit; PR open/draft; main unchanged. Eleven
+  documentation files passed local checks; commit identities and patch privacy scans passed.
